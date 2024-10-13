@@ -1,0 +1,10 @@
+CC=gcc
+
+all: app.o
+	$(CC) -o app app.o
+
+app.o: app.c
+	$(CC) -c app.c
+
+clean:
+	rm -f app app.o
