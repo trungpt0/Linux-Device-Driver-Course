@@ -7,6 +7,7 @@
 #include <linux/gpio.h>
 
 #define BUFFER_SIZE 1024
+#define GPIO_NUM 60
 
 dev_t dev_num = 0; // Device number
 static struct class *dev_class = NULL; // Device class
@@ -30,7 +31,7 @@ static int device_release(struct inode *inode, struct file *file)
 static ssize_t device_read(struct file *filp, char __user *buffer, size_t count, loff_t *offset)
 {
     pr_info("RootV device was read!\n");
-    return BUFFER_SIZE;
+    return min(count, (size_t)(BUFFER_SIZE - *offset));
 }
 
 // Function to handle writing to the device
@@ -40,13 +41,10 @@ static ssize_t device_write(struct file *filp, const char __user *buffer, size_t
 
     if (copy_from_user(&value, buffer, sizeof(value))) {
         pr_err("write error!");
+        return -EFAULT;
     }
 
-    if (value == '1') {
-        gpio_set_value(60, 1);
-    } else {
-        gpio_set_value(60, 0);
-    }
+    gpio_set_value(GPIO_NUM, value == '1' ? 1 : 0);
 
     pr_info("RootV device was write!\n");
     return count;
@@ -96,13 +94,13 @@ static int __init gpio_init(void)
     }
 
     /* Init GPIO 60 */
-    if(gpio_request(60, "gpio_60_BBB")) {
+    if(gpio_request(GPIO_NUM, "gpio_60_BBB")) {
         pr_err("can not alloc GPIO60");
         goto dev_err;
     }
 
     /* Set output direction for GPIO */
-    if (gpio_direction_output(60, 0)) {
+    if (gpio_direction_output(GPIO_NUM, 0)) {
         pr_err("can not set direction for GPIO60");
         goto gpio_err;
     }
@@ -111,7 +109,7 @@ static int __init gpio_init(void)
     return 0;
 
 gpio_err:
-    gpio_free(60);
+    gpio_free(GPIO_NUM);
 dev_err:
     class_destroy(dev_class);
 class_err:
@@ -126,7 +124,7 @@ cdev_err:
 */
 static void __exit gpio_exit(void)
 {
-    gpio_free(60);
+    gpio_free(GPIO_NUM);
     cdev_del(&rootv_cdev); // Remove the character device
     device_destroy(dev_class, dev_num); // Removes a device
     class_destroy(dev_class); // Destroys a struct class structure
@@ -146,4 +144,4 @@ module_exit(gpio_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("trung tran");
 MODULE_DESCRIPTION("GPIO Driver");
-MODULE_VERSION("1.0");
+MODULE_VERSION("1.1");
