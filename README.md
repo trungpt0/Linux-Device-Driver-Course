@@ -1,5 +1,5 @@
 # Linux Device Driver with BeagleBone Black Course
-This course provides a guide on writing basic Linux device drivers on the BeagleBone Black
+    This course provides a guide on writing basic Linux device drivers on the BeagleBone Black
 ## Course Outline
 ### Lesson 1 - Hello World Kernel Module
 ### Lesson 2 - Module Parameters

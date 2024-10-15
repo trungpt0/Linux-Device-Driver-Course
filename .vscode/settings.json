@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "module.h": "c",
+        "type_traits": "c"
+    }
+}
