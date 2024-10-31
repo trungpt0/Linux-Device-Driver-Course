@@ -11,12 +11,8 @@
 #define GPIO_INTERRUPT_PIN 49
 
 /* Workqueue dynamic */
-static struct work_struct workqueue;
-
-void workqueue_fn(struct work_struct *work)
-{
-    pr_info("in workqueue function\n");
-}
+static struct workqueue_struct *workqueue;
+static struct work_struct work;
 
 dev_t dev_num;
 static struct class *dev_class;
@@ -24,6 +20,11 @@ static struct cdev rootv_cdev;
 
 static int irq_number;
 static atomic_t count_irq = ATOMIC_INIT(0); // atomic variable used to access count_irq one time one thread
+
+void workqueue_fn(struct work_struct *work)
+{
+    pr_info("in workqueue function\n");
+}
 
 /**
  * Interrupt handler
@@ -34,8 +35,8 @@ static irqreturn_t irq_handler(int irq, void *dev)
     atomic_inc(&count_irq); // Use atomic increment for safe concurrent access
     
     /* Onlu schedule work if no other instance is already pending */
-    if (!work_pending(&workqueue)) {
-        schedule_work(&workqueue);
+    if (!work_pending(&work)) {
+        queue_work(workqueue, &work);
     }
 
     return IRQ_HANDLED;
@@ -65,12 +66,8 @@ static ssize_t rootv_read(struct file *filp, char __user *buf, size_t len, loff_
     count = snprintf(kbuffer, sizeof(kbuffer), "%d\n", atomic_read(&count_irq));
 
     /* check if all data has been sent */
-    if (*off >= count) {
-        return 0;
-    }
-    if (len < count) {
-        count = len;
-    }
+    if (*off >= count) return 0;
+    if (len < count) count = len;
 
     /* copy data from kernel -> user */
     if (copy_to_user(buf, kbuffer, count)) {
@@ -132,7 +129,7 @@ static int __init wq_driver_init(void)
     }
     
     /* Register irq */
-    gpio_request(GPIO_INTERRUPT_PIN, "GPIO Interrupt Pin");
+    if (gpio_request(GPIO_INTERRUPT_PIN, "GPIO Interrupt Pin") < 0) goto err_gpio;
     gpio_direction_input(GPIO_INTERRUPT_PIN);
     irq_number = gpio_to_irq(GPIO_INTERRUPT_PIN);
     if (request_irq(irq_number, irq_handler, IRQF_TRIGGER_RISING, "rootv_dev", NULL)) {
@@ -140,17 +137,20 @@ static int __init wq_driver_init(void)
         goto err_irq;
     }
 
-    INIT_WORK(&workqueue, workqueue_fn);
+    workqueue = create_workqueue("my_workqueue");
+    if (!workqueue) goto err_wq;
+    INIT_WORK(&work, workqueue_fn);
 
     pr_info("Kernel Module Inserted Successfully!\n");
     return 0;
 
+err_wq:
+    free_irq(irq_number, NULL);
 err_irq:
-    if (irq_number) {
-        free_irq(irq_number, NULL);
-    }
-err_cdev:
+    gpio_free(GPIO_INTERRUPT_PIN);
+err_gpio:
     device_destroy(dev_class, dev_num);
+err_cdev:
     cdev_del(&rootv_cdev);
 err_dev:
     class_destroy(dev_class);
@@ -162,9 +162,11 @@ err_class:
 /* Remove driver */
 static void __exit wq_driver_exit(void)
 {
-    if (irq_number) {
-        free_irq(irq_number, NULL);
+    if (workqueue) {
+        flush_workqueue(workqueue);
+        destroy_workqueue(workqueue);
     }
+    if (irq_number) free_irq(irq_number, NULL);
     cdev_del(&rootv_cdev);
     device_destroy(dev_class, dev_num);
     class_destroy(dev_class);
