@@ -1,0 +1,1 @@
+cmd_/home/esacev/LLD_Course/013_linked_list/Module.symvers := sed 's/ko$$/o/' /home/esacev/LLD_Course/013_linked_list/modules.order | scripts/mod/modpost -m    -o /home/esacev/LLD_Course/013_linked_list/Module.symvers -e -i Module.symvers   -T -

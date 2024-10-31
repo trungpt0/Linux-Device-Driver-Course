@@ -43,10 +43,11 @@ static void add_node(int value)
 static void delete_all_nodes(void)
 {
     struct my_node *pos_node, *tmp;
-    list_for_each_entry_safe(pos_node, tmp, &head_node, list);
-    list_del(&pos_node->list);
-    kfree(pos_node);
-    pr_info("node deleted with value: %d\n", pos_node->data);
+    list_for_each_entry_safe(pos_node, tmp, &head_node, list) {
+        list_del(&pos_node->list);
+        kfree(pos_node);
+        pr_info("node deleted with value: %d\n", pos_node->data);
+    }
 }
 
 /* Open rootv device file */
