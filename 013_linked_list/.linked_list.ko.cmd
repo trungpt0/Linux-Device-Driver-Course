@@ -1,1 +1,0 @@
-cmd_/home/esacev/LLD_Course/013_linked_list/linked_list.ko := arm-linux-gnueabi-ld -r -EL -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/esacev/LLD_Course/013_linked_list/linked_list.ko /home/esacev/LLD_Course/013_linked_list/linked_list.o /home/esacev/LLD_Course/013_linked_list/linked_list.mod.o;  true
