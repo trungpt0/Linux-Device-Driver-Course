@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "module.h": "c"
+        "module.h": "c",
+        "gpio.h": "c",
+        "fs.h": "c",
+        "typeinfo": "c"
     }
 }
