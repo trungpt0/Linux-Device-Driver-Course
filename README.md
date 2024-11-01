@@ -12,7 +12,9 @@
 ### Lesson 9    - Sysfs
 ### Lesson 10   - GPIO
 ### Lesson 11   - Interrupt
-### Lesson 11   - Workqueue
+### Lesson 12   - Workqueue
+### Lesson 13   - Linked List
+### Lesson 14   - Kernel Thread
 ## Prerequisites
 - Basic knowledge of C programming
 - Familiarity with Linux command line

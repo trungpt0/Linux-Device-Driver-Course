@@ -17,7 +17,6 @@ sudo rsync -avz *.ko debian@192.168.7.2:/home/debian
 ```
 ### BBB
 ```bash
-make
 sudo insmod linked_list.ko
 sudo chmod 666 /dev/rootv_dev
 sudo echo 8 > /dev/rootv_dev
