@@ -15,6 +15,7 @@
 ### Lesson 12   - Workqueue
 ### Lesson 13   - Linked List
 ### Lesson 14   - Kernel Thread
+### Lesson 15   - Tasklet
 ## Prerequisites
 - Basic knowledge of C programming
 - Familiarity with Linux command line
