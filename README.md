@@ -16,6 +16,8 @@
 ### Lesson 13   - Linked List
 ### Lesson 14   - Kernel Thread
 ### Lesson 15   - Tasklet
+### Lesson 16   - Mutex
+### Lesson 17   - Spinlock
 ## Prerequisites
 - Basic knowledge of C programming
 - Familiarity with Linux command line
